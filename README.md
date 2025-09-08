@@ -1,0 +1,1 @@
+# sigma-detection-pwsh-encoded-mitre-t1059.001
