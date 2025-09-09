@@ -1,0 +1,117 @@
+{
+  "query": {
+    "constant_score": {
+      "filter": {
+        "bool": {
+          "must": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "bool": {
+                      "should": [
+                        {
+                          "bool": {
+                            "must": [
+                              {
+                                "wildcard": {
+                                  "event_data.Image.keyword": "*\\\\powershell.exe"
+                                }
+                              },
+                              {
+                                "wildcard": {
+                                  "event_data.CommandLine.keyword": "*-enc*"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "bool": {
+                            "must": [
+                              {
+                                "wildcard": {
+                                  "event_data.Image.keyword": "*\\\\powershell.exe"
+                                }
+                              },
+                              {
+                                "wildcard": {
+                                  "event_data.CommandLine.keyword": "*Invoke-WebRequest*"
+                                }
+                              },
+                              {
+                                "wildcard": {
+                                  "event_data.CommandLine.keyword": "*http*"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "bool": {
+                      "must": [
+                        {
+                          "wildcard": {
+                            "event_data.Image.keyword": "*\\\\powershell.exe"
+                          }
+                        },
+                        {
+                          "wildcard": {
+                            "event_data.CommandLine.keyword": "*iex*"
+                          }
+                        },
+                        {
+                          "wildcard": {
+                            "event_data.CommandLine.keyword": "*http*"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "bool": {
+                "must_not": [
+                  {
+                    "bool": {
+                      "must": [
+                        {
+                          "bool": {
+                            "should": [
+                              {
+                                "wildcard": {
+                                  "event_data.ParentImage.keyword": "*\\\\System32\\\\services.exe"
+                                }
+                              },
+                              {
+                                "wildcard": {
+                                  "event_data.ParentImage.keyword": "*\\\\svchost.exe"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "_source": [
+    "TimeCreated",
+    "event_data.User",
+    "event_data.Image",
+    "event_data.ParentImage",
+    "event_data.CommandLine"
+  ]
+}
