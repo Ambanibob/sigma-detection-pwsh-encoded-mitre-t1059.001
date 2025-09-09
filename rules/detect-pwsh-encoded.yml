@@ -1,0 +1,53 @@
+title: Suspicious PowerShell Encoded Command or Download Activity
+id: ca-blue-siem-psh-encoded-download-20250908
+description: |
+  Detects the use of PowerShell with a base64-encoded command argument (indicative of obfuscation),
+  or known LOLBins for downloading remote content (e.g., Invoke-WebRequest, IEX with URLs), which are common
+  attack techniques mapped to MITRE ATT&CK T1059.001 and T1105.
+author: Daksha Mudumbai
+date: 2025/09/08
+status: stable
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://attack.mitre.org/techniques/T1105/
+  - https://www.sans.org/blog/defeating-powershell-attack-methods/
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  selection_encoded:
+    Image|endswith: '\powershell.exe'
+    CommandLine|contains: '-enc'
+  selection_download:
+    Image|endswith: '\powershell.exe'
+    CommandLine|contains|all:
+      - 'Invoke-WebRequest'
+      - 'http'
+  selection_iex_url:
+    Image|endswith: '\powershell.exe'
+    CommandLine|contains|all:
+      - 'iex'
+      - 'http'
+  whitelist:
+    ParentImage|endswith:
+      - '\System32\services.exe'
+      - '\svchost.exe'
+  condition: (selection_encoded or selection_download or selection_iex_url) and not whitelist
+fields:
+  - TimeCreated
+  - User
+  - Image
+  - ParentImage
+  - CommandLine
+falsepositives:
+  - Legitimate system administration by known sysadmins (review User and ParentImage fields)
+  - Approved IT automation (should be whitelisted per environment)
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001
+  - attack.command_and_control
+  - attack.t1105
+  - powershell
+  - sigma
+
