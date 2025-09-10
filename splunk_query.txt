@@ -1,0 +1,9 @@
+# SPLUNK SIEM QUERY: Suspicious PowerShell Encoded or Download Activity (MITRE T1059.001, T1105)
+# Use in Splunk search bar to detect obfuscated/encoded PowerShell and LOLBin downloads
+
+index=winlogbeat OR index=sysmon
+(Image="*\\powershell.exe")
+(CommandLine="*-enc*" OR (CommandLine="*Invoke-WebRequest*" CommandLine="*http*") OR (CommandLine="*iex*" CommandLine="*http*"))
+| where NOT (ParentImage="*\\System32\\services.exe" OR ParentImage="*\\svchost.exe")
+| table _time, User, Image, ParentImage, CommandLine
+
